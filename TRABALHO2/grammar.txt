@@ -1,0 +1,20 @@
+"Start Symbol" = <S>
+               
+var = {Letter}{alphaNumeric}*
+id = {Digit}+
+   
+<S>::= <IF> <S> | <ELSE> <S> | <WHILE> <S> |  <OPER> <S> | <DEC> <S> | 'return'';' | <CHAIN_IF>
+<if>::= 'if''('<COND>')''{'<S>
+<CHAIN_IF>::= '}'
+<ELSE>::= 'if''('<COND>')''{'<S>'else''{'<S>
+<WHILE>::= 'while''('<COND>')''{'<S>
+<COND>::= 'id' | 'id'<OP_LOGIC><COND> | <CONSTANT> | <CONSTANT> <OP_LOGIC> <COND> | 'var' | 'var' <OP_LOGIC> <COND>
+<OP_LOGIC>::= '==' | '!=' | '<' | '>' | '<=' | '>=' | '&&' | '||'
+<OPER> ::= 'var''=' <E>';' | 'var' '=' 'var'';' |'var' '=' <CONSTANT>';'
+<E> ::= <E>'+'<T> | <E>'-'<T> | <T>
+<T> ::= <T>'*'<F> | <T>'/'<F> | <F>
+<F> ::= '('<E>')'| 'var' | <CONSTANT> | 'id'
+<DEC>::= <TYPE> 'var'';'
+<TYPE>::= 'integer' | 'real' | 'boolean'
+<CONSTANT>::= 'TRUE'| 'FALSE'| 'MAX'
+

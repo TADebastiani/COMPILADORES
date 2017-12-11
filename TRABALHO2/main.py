@@ -555,6 +555,7 @@ def printSLR(tabela_slr):
 #retorna o codigo temporario da reducao
 def acaoSemantica(r,caracs,cod):
 	global CONT_TEMP, TABELA_SIMBOLOS_SINTATICA
+	
 	if(r == 35 or r == 39 or r == 41 or r == 40):
 		cod.append(caracs[len(caracs)-1])
 	
@@ -840,4 +841,3 @@ def main():
 				otimizacao()
 
 main()
-

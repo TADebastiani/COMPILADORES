@@ -166,10 +166,6 @@ def Term(estad, term):
 		ESTADOS[cont].transicoes.append(transi)
 	est = estado()
 	est.final = True
-	if CONT_GRAMM > 1:
-		est.tipo = 1
-	else:
-		est.tipo = 0
 	est.rotulo = CONT_ESTADO
 	CONT_ESTADO += 1
 	ESTADOS.append(est)
@@ -228,6 +224,10 @@ def leGR(linha):
 				for i in ESTADOS:
 					if i.rotuloGr == std:
 						i.final = True
+						if CONT_GRAMM > 1:
+							i.tipo = 1
+						else:
+							i.tipo = 0
 			Term(std,term)
 
 
@@ -298,14 +298,15 @@ def determinizar():
 			for i in fila[0]:
 				if AFND[i].final == True:
 					est.final = True
-				if AFND[i].eh_token == True:
-					est.eh_token = True
 				if AFND[i].inicial == True:
 					est.inicial = True
-				if AFND[i].tipo == 0:
-					est.tipo = 0
-				else:
-					est.tipo = 1
+				if AFND[i].eh_token == True:
+					est.eh_token = True
+				if AFND[i].eh_token  == False:
+					if AFND[i].tipo == 0:
+						est.tipo = 0
+					else:
+						est.tipo = 1
 				for k in AFND[i].transicoes:
 					if k.rotulo == j:
 						for l in k.transicoes:

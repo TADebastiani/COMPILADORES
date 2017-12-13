@@ -420,6 +420,33 @@ def gerarCSV():
 
 #funçao que recebe uma linha como parametro
 #retorna um token
+def split_token2(linha):
+	global i
+	token = ""
+	if((linha[i] == '<' and linha[i+1] == '=') or (linha[i] == '>' and linha[i+1] == '=') or (linha[i] == '!' and linha[i+1] == '=') or (linha[i] == '=' and linha[i+1] == '=') or (linha[i] == '&' and linha[i+1] == '&') or (linha[i] == '|' and linha[i+1] == '|')):
+		token = linha[i]+ linha[i+1] + '\n'
+		i += 2
+		while(linha[i] == ' '):
+			i+= 1
+		return token
+	
+	if(linha[i] == '+' or linha[i] == '-' or linha[i] == '/' or linha[i] == '*' or linha[i] == '%' or linha[i] == '(' or linha[i] == ')' or linha[i] == '{' or linha[i] == '}' or linha[i] == '>' or linha[i] == '<' or linha[i] == ';' or linha[i] == '='):
+		token = linha[i] + '\n'
+		i += 1
+		while(linha[i] == ' '):
+			i+= 1
+		return token
+	else:
+		while(linha[i] not in [' ' , '\n', '+' , '-' , '*', '/', ';','%', '>', '<','=', '!', '(', ')', '{', '}', '&', '|']):
+			token = token + linha[i]
+			i+= 1
+		while(linha[i] == ' '):
+			i+= 1
+		token = token + '\n'
+		return token
+		
+#funçao que recebe uma linha como parametro
+#retorna um token
 def split_token(linha):
 	global i
 	token = ""
@@ -481,7 +508,7 @@ def lexic():
 		for linha in arquivo:
 			i = 0
 			while linha[i] != '\n':
-				token = split_token(linha)
+				token = split_token2(linha)
 				rec = rec_token(token)
 				if rec == False:
 					er = erro()

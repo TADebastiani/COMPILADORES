@@ -823,7 +823,7 @@ def main():
 				est.rotuloGr = 'S'
 				AFND.append(est)
 				CONT_ESTADO +=1
-			elif(linha[0] == '<'):
+			elif(linha[0] == '<' and linha[1] != '=' and linha[1] != '\n'):
 				leGR(linha)
 			else:
 				leToken(linha)

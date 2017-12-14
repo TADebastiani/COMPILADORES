@@ -423,6 +423,8 @@ def gerarCSV():
 def split_token2(linha):
 	global i
 	token = ""
+	while linha[i] == ' ' or linha[i] == '\t':
+		i += 1
 	if((linha[i] == '<' and linha[i+1] == '=') or (linha[i] == '>' and linha[i+1] == '=') or (linha[i] == '!' and linha[i+1] == '=') or (linha[i] == '=' and linha[i+1] == '=') or (linha[i] == '&' and linha[i+1] == '&') or (linha[i] == '|' and linha[i+1] == '|')):
 		token = linha[i]+ linha[i+1] + '\n'
 		i += 2

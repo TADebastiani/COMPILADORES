@@ -4,3 +4,4 @@ temp0 = a - 999
 temp1 = b * temp0
 temp2 = temp1 / a
 b = a
+a = b

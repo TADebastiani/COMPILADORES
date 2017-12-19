@@ -551,7 +551,7 @@ def printTabSimbSint():
 	print("------TABELA DE SIMBOLOS------")
 	print()
 	for i in TABELA_SIMBOLOS_SINTATICA:
-		print("rolulo = " + i.rotulo + " valor = " + i.val, " tipo = " + i.tipo)
+		print("rotulo = " + i.rotulo + " valor = " + i.val, " tipo = " + i.tipo)
 	print()
 
 #imprime tabela de simbolos da etapa de analise lexica
@@ -820,6 +820,7 @@ def geraCodI():
 def analiseSemantica():
 	val1 = ""
 	val2 = ""
+	eh_var = False
 	for i in TABELA_SIMBOLOS_SINTATICA:
 		if i.tipo == "atrib":
 			for j in TABELA_SIMBOLOS_SINTATICA:
@@ -829,10 +830,12 @@ def analiseSemantica():
 			for k in TABELA_SIMBOLOS_SINTATICA:
 				if k.tipo == "var":
 					if i.val == k.rotulo:
+						eh_var = True
 						val2 = k.val
-			if(val1 != val2):
+			if(val1 != val2 and eh_var):
 				print("erro semantico na expressão: " + i.rotulo + "("+val1+")"+ " = " + ""+ i.val + "("+val2+")")
 				print()
+			eh_var = False
 
 def main():
 	global CONT_ESTADO, AFND, ESTADOS, CONT_LINHA

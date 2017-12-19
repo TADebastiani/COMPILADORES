@@ -1,9 +1,9 @@
 boolean a;
 integer b;
 a= b * (a-999) / a ;
-b=a;
+a = b;
 if(a < b){
 }else{
-	a = b;
+	a = 20;
 }
 return;

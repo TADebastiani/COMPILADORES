@@ -8,7 +8,6 @@ from simbolo import *
 from token import *
 import csv
 import os
-from prettytable import PrettyTable
 from goldpyser import *
 from nodo import *
 from simbSintatico import *

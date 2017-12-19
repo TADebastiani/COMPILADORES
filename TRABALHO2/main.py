@@ -584,10 +584,10 @@ def printSLR(tabela_slr):
 def acaoSemantica(r,caracs,cod):
 	global CONT_TEMP, TABELA_SIMBOLOS_SINTATICA
 
-	if(r == 35 or r == 39 or r == 41 or r == 40):
+	if(r == 35 or r == 39 or r == 41 or r == 40): #adiciona à pilha
 		cod.append(caracs[len(caracs)-1])
 
-	if(r == 28 or r == 29 or r == 31 or r == 32):
+	if(r == 28 or r == 29 or r == 31 or r == 32): #cria um temporário com a operação
 		temp = "temp" + str(CONT_TEMP)
 		CODI.append(temp + " = " + 	cod[len(cod)-2] + " " + caracs[1] + " " + cod[len(cod)-1])
 		cod.pop(len(cod)-1)
@@ -595,14 +595,14 @@ def acaoSemantica(r,caracs,cod):
 		cod.append(temp)
 		CONT_TEMP += 1
 
-	if(r == 25):
+	if(r == 25): # final de produção
 		simbolo = simbSintatico()
 		simbolo.rotulo = caracs[len(caracs)-1]
 		simbolo.val = cod[len(cod)-1]
 		simbolo.tipo = "oper"
 		TABELA_SIMBOLOS_SINTATICA.append(simbolo)
 
-	if(r == 38):
+	if(r == 38): # declaração de variável - atribui o tipo
 		CODI.append(cod[len(cod)-1] + " " + caracs[1])
 		simbolo = simbSintatico()
 		simbolo.rotulo = caracs[1]
@@ -610,7 +610,8 @@ def acaoSemantica(r,caracs,cod):
 		simbolo.tipo = "var"
 		TABELA_SIMBOLOS_SINTATICA.append(simbolo)
 		cod.pop(len(cod)-1)
-	if(r == 26):
+
+	if(r == 26): # atribuição entre duas variáveis
 		CODI.append(caracs[3] + " = " + caracs[1])
 		simbolo = simbSintatico()
 		simbolo.val = caracs[1]
@@ -657,6 +658,7 @@ def analiseSintatica():
 		for i in tabela_slr:
 			if i.rotulo == pos_fita2:
 				op = i.transicoes[pos_pilha]
+
 		tipo = op[:1]
 		if(tipo == 'X'):
 			ERRO = pos_fita
@@ -684,7 +686,6 @@ def analiseSintatica():
 			salto = tabela_slr[nt].transicoes[pos]
 			pilha.append(str(tabela_slr[nt].rotulo))
 			pilha.append(str(salto))
-
 
 		elif(tipo == 'A'):
 			aceita = True

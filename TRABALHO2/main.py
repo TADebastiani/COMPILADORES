@@ -16,7 +16,7 @@ from simbSintatico import *
 
 #erros
 ERRO_LEX = 0
-ERRO_SINTATICO = 1 
+ERRO_SINTATICO = 1
 
 #GLOBAIS
 TABELA_ERROS = []
@@ -46,9 +46,9 @@ def splitNT (linha):
 	while linha[I_LINHA] != '>':
 		NT = NT + linha[I_LINHA]
 		I_LINHA += 1
-	return NT	
+	return NT
 
-	
+
 #Recebe como parametro uma linha da entrada referente a um token
 #converte esse token em estados no AF
 def leToken(linha):
@@ -431,7 +431,7 @@ def split_token2(linha):
 		while(linha[i] == ' '):
 			i+= 1
 		return token
-	
+
 	if(linha[i] == '+' or linha[i] == '-' or linha[i] == '/' or linha[i] == '*' or linha[i] == '%' or linha[i] == '(' or linha[i] == ')' or linha[i] == '{' or linha[i] == '}' or linha[i] == '>' or linha[i] == '<' or linha[i] == ';' or linha[i] == '='):
 		token = linha[i] + '\n'
 		i += 1
@@ -446,7 +446,7 @@ def split_token2(linha):
 			i+= 1
 		token = token + '\n'
 		return token
-		
+
 #funçao que recebe uma linha como parametro
 #retorna um token
 def split_token(linha):
@@ -471,7 +471,7 @@ def insereVar(cod,toke,eh_token,tipo):
 	tok.linha = CONT_LINHA
 	tok.tipo = tipo
 	TABELA_SIMBOLOS.append(tok)
-	
+
 #funcao recebe como parametro um token
 #verifica se o teken eh reconheceido no AFD
 #retorna True se positivo
@@ -485,17 +485,17 @@ def rec_token(token):
 	while(token[i] != '\n'):
 		flag = 0
 		for j in AFD[rot].transicoes:
-			if j.rotulo == token[i]:	
-				flag = 1			
+			if j.rotulo == token[i]:
+				flag = 1
 				if token[i+1] == '\n' and AFD[j.trans].final == True and AFD[j.trans].rotuloGr != 'X':
 					FITA.append(j.trans)
 					insereVar(j.trans,token,AFD[j.trans].eh_token, AFD[j.trans].tipo)
 					return True
 				else:
 					aux = j.trans
-		
-		if flag == 0: 
-			return False	
+
+		if flag == 0:
+			return False
 		rot = aux
 		i+= 1
 	return False
@@ -530,33 +530,33 @@ def printErros(flag, tipo):
 	if flag == True:
 		if tipo == ERRO_LEX:
 			print()
-			print("Analise lexica nao contem erros")
+			print("Análise léxica não contém erros!")
 			print()
 		else:
-			print("Analise sintatica nao contem erros")
+			print("Análise sintática não contém erros!")
 			print()
 	else:
 		print("------TABELA DE ERROS------")
 		print()
 		for i in TABELA_ERROS:
 			if i.cod_erro == 0:
-				print("Erro na analise lexica!! Linha:" + str(i.linha)+ " Token:" + str(i.token))
+				print("Erro na análise léxica!! Linha:" + str(i.linha)+ " Token:" + str(i.token))
 			if i.cod_erro == 1:
-				print("Erro na analise sintatica!! Linha:" + str(i.linha)+ " Token:" + str(i.token))
+				print("Erro na análise sintática!! Linha:" + str(i.linha)+ " Token:" + str(i.token))
 		print()
 
 #Imprime tabela de simbolos da etapa de analise sintatica
 def printTabSimbSint():
 	global TABELA_SIMBOLOS_SINTATICA
-	print("------TABELA DE SIMBOLOS------")
+	print("------TABELA DE SÍMBOLOS------")
 	print()
 	for i in TABELA_SIMBOLOS_SINTATICA:
-		print("rotulo = " + i.rotulo + " valor = " + i.val, " tipo = " + i.tipo)
+		print("Rótulo = " + i.rotulo + " Valor = " + i.val, " Tipo = " + i.tipo)
 	print()
 
 #imprime tabela de simbolos da etapa de analise lexica
 def printTabSimb():
-	print("------TABELA DE SIMBOLOS------")
+	print("------TABELA DE SÍMBOLOS------")
 	print()
 	for i in TABELA_SIMBOLOS:
 		if i.eh_token == True:
@@ -564,13 +564,13 @@ def printTabSimb():
 			print("Cod: {} Tipo: {} Token: {}".format(i.cod, tipo, i.token), end='')
 		else:
 			if i.tipo == 0:
-				tipo = "VARIAVEL"
+				tipo = "VARIÁVEL"
 				print("Cod: {} Tipo: {} Token: {}".format(i.cod, tipo, i.token), end='')
 			if i.tipo == 1:
 				tipo = "NUMERAL"
 				print("Cod: {} Tipo: {} Token: {}".format(i.cod, tipo, i.token), end='')
 	print()
-		
+
 #imprime tabela LSR
 def printSLR(tabela_slr):
 	for i in tabela_slr:
@@ -578,31 +578,31 @@ def printSLR(tabela_slr):
 		for j in i.transicoes:
 			print(j, end = "")
 		print()
-	
+
 #funcao que recebe como parametro a reducao, os caracteres da fita e o codigo temporario da reduçao
 #realiza operaçoes de açoes semanticas em produçoes
 #retorna o codigo temporario da reducao
 def acaoSemantica(r,caracs,cod):
 	global CONT_TEMP, TABELA_SIMBOLOS_SINTATICA
-	
+
 	if(r == 35 or r == 39 or r == 41 or r == 40):
 		cod.append(caracs[len(caracs)-1])
-	
+
 	if(r == 28 or r == 29 or r == 31 or r == 32):
-		temp = "temp" + str(CONT_TEMP)	
+		temp = "temp" + str(CONT_TEMP)
 		CODI.append(temp + " = " + 	cod[len(cod)-2] + " " + caracs[1] + " " + cod[len(cod)-1])
 		cod.pop(len(cod)-1)
 		cod.pop(len(cod)-1)
 		cod.append(temp)
 		CONT_TEMP += 1
-	
+
 	if(r == 25):
 		simbolo = simbSintatico()
 		simbolo.rotulo = caracs[len(caracs)-1]
 		simbolo.val = cod[len(cod)-1]
 		simbolo.tipo = "oper"
 		TABELA_SIMBOLOS_SINTATICA.append(simbolo)
-	
+
 	if(r == 38):
 		CODI.append(cod[len(cod)-1] + " " + caracs[1])
 		simbolo = simbSintatico()
@@ -611,7 +611,7 @@ def acaoSemantica(r,caracs,cod):
 		simbolo.tipo = "var"
 		TABELA_SIMBOLOS_SINTATICA.append(simbolo)
 		cod.pop(len(cod)-1)
-	if(r == 26):	
+	if(r == 26):
 		CODI.append(caracs[3] + " = " + caracs[1])
 		simbolo = simbSintatico()
 		simbolo.val = caracs[1]
@@ -627,7 +627,7 @@ def analiseSintatica():
 	global TABELA_SIMBOLOS
 	cod = []
 	tabela_slr = read_from_xml("grammar.xml")
-	
+
 	prods = get_productions_from_xml("grammar.xml")
 	pilha = []
 	pilha.append('0')
@@ -645,16 +645,16 @@ def analiseSintatica():
 		else:
 			token = True
 			pos_fita = "EOF"
-			
+
 		pos_pilha = int(pilha[len(pilha)-1])
 		op = " "
 		pos_fita2 = " "
-		
+
 		if token == False:
 			pos_fita2 = "var"
 		else:
 			pos_fita2 = pos_fita
-			
+
 		for i in tabela_slr:
 			if i.rotulo == pos_fita2:
 				op = i.transicoes[pos_pilha]
@@ -662,19 +662,19 @@ def analiseSintatica():
 		if(tipo == 'X'):
 			ERRO = pos_fita
 			reconhece = False
-		
+
 		elif(tipo == 'T'):
 			t = op[1:]
 			pilha.append(pos_fita)
 			pilha.append(t)
 			indice += 1
-			
+
 		elif(tipo == 'R'):
 			r = int(op[1:])
 			tam = 2 * int(prods[r].tam)
 			nt = int(prods[r].regra)
 			caracs = []
-			
+
 			while(tam > 0):
 				if(tam % 2 == 1):
 					caracs.append(pilha[len(pilha)-1])
@@ -685,11 +685,11 @@ def analiseSintatica():
 			salto = tabela_slr[nt].transicoes[pos]
 			pilha.append(str(tabela_slr[nt].rotulo))
 			pilha.append(str(salto))
-			
-			
+
+
 		elif(tipo == 'A'):
 			aceita = True
-			
+
 	if aceita == False:
 		er = erro()
 		er.linha = LINHA
@@ -701,7 +701,7 @@ def analiseSintatica():
 		printTabSimbSint()
 		printErros(True,ERRO_SINTATICO)
 	return aceita
-	
+
 #funcao que recebe como parametro uma linha do codigo intemediario e um grafo
 #Gera nodos dessa linha no grafo
 def geraNodos(lin,grafo):
@@ -733,7 +733,7 @@ def geraNodos(lin,grafo):
 		nodo2.var = lin[4]
 		CONTNODO += 1
 		grafo.append(nodo2)
-		
+
 	nodotemp = nodo()
 	nodotemp.pos = CONTNODO
 	nodotemp.var = lin[0]
@@ -746,7 +746,7 @@ def geraNodos(lin,grafo):
 	grafo[nodotemp.filhos[1]].pai.append(CONTNODO)
 	CONTNODO+=1
 	grafo.append(nodotemp)
-	
+
 #funcao que recebe como parametro um grafo e uma lista de nodos
 #percorre o grafo em profundidade mais a esquerda
 #fundamental para o processo de otimizaçao
@@ -764,7 +764,7 @@ def dfs(grafo, ordemInst):
 					else:
 						on = False
 						break
-				if on == True:	
+				if on == True:
 					ordemInst.append(grafo[aresta])
 					pilha.append(grafo[aresta])
 					ar = True
@@ -784,18 +784,18 @@ def codOtimizado(ordemInst,grafo):
 		arquivo.write(str(i.var) + " = " + grafo[i.filhos[0]].var + " " + i.op + " " + grafo[i.filhos[1]].var + " " + "\n")
 		k -= 1
 	arquivo.close()
-	
 
-#funcao que realiza a otimizaçao do codigo intermediario	
+
+#funcao que realiza a otimizaçao do codigo intermediario
 def otimizacao():
-	grafo = [] 
+	grafo = []
 	ordemInst = []
-	
+
 	with open("codIntermediario.txt", "r") as arquivo:
 		for linha in arquivo:
 			linha.strip('\n')
 			lin = linha.split(" ")
-			if len(lin) == 5:	
+			if len(lin) == 5:
 				geraNodos(lin,grafo)
 			else:
 				arquivo = open('codOtimizado.txt', 'a')
@@ -843,7 +843,7 @@ def main():
 	arquivo = open('codOtimizado.txt', 'w')
 	arquivo.write(str(""))
 	arquivo.close()
-	
+
 	with open("entrada.txt", "r") as arquivo:
 		for linha in arquivo:
 			if (linha[len(linha)-1] != '\n'):

@@ -1,6 +1,6 @@
 from xml.etree  import ElementTree
 from html       import unescape
-from simbolo    import simbolo
+from simbolo    import Simbolo
 from Production import Production
 from enum       import Enum
 
@@ -39,7 +39,7 @@ def read_from_xml(path):
     nstates = int(table_node.attrib['Count'])
 
     for symbol in symbols_node.findall('Symbol'):
-        sym = simbolo()
+        sym = Simbolo()
         # Sometimes in XML the symbols are escaped in HTML format. E.g.: &lt; = <, then we need to
         # undo this convertion
         sym.rotulo = unescape(symbol.attrib['Name'])

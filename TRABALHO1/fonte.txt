@@ -1,9 +1,0 @@
-boolean a;
-boolean b;
-a=b*(a-999)/a;
-b=a;
-if(a<=b){
-}
-else{
-}
-return;

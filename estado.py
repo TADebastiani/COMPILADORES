@@ -1,4 +1,4 @@
-class estado:
+class Estado:
 	def __init__(self):
 		self.transicoes = []
 		self.rotulo = 0

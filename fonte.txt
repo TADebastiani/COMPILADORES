@@ -1,4 +1,4 @@
-boolean a;
+integer a;
 integer b;
 a= b * (a-999) / a ;
 a = b;

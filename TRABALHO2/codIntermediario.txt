@@ -1,7 +1,0 @@
-boolean a
-integer b
-temp0 = a - 999
-temp1 = b * temp0
-temp2 = temp1 / a
-a = b
-a = 20

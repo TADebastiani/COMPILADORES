@@ -1,4 +1,4 @@
-class erro:
+class Erro:
 	def __init__(self):
 		self.cod_erro = -1
 		self.token = ""

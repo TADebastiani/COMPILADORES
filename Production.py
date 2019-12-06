@@ -1,4 +1,4 @@
-class Production():
+class Production:
     def __init__(self, tam, regra):
         self.tam = tam
         self.regra = regra

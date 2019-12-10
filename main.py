@@ -1,16 +1,18 @@
+# Refatoração do código feito por: Tiago Debastiani e Ricardo Muller
+#
 # Academicos: Gabriel Rudey, Jefferson Coppini, Jonathan Rauber, Nicholas Brutti e Ricardo Muller
 # Trabalho 2
 # Disciplina: Compiladores
 import csv
 
 from SimboloSintatico import *
+from erro import Erro
 from estado import Estado
+from goldpyser import *
 from nodo import Nodo
 from prettytable import PrettyTable
 from token import Token
 from transicao import *
-
-from goldpyser import *
 
 # erros
 ERRO_LEX = 0
@@ -732,6 +734,8 @@ def gera_nodos(lin, grafo):
     rot1 = 0
     rot2 = 0
     lin[4] = lin[4][:-1]
+    nodo1 = None
+    nodo2 = None
 
     for i in grafo:
         if i.var == lin[2]:

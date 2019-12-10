@@ -3,14 +3,14 @@
 # Disciplina: Compiladores
 import csv
 
-from erro import *
-from estado import *
-from goldpyser import *
-from nodo import *
-from prettytable import PrettyTable
 from SimboloSintatico import *
-from token import *
-from transicoes import *
+from estado import Estado
+from nodo import Nodo
+from prettytable import PrettyTable
+from token import Token
+from transicao import *
+
+from goldpyser import *
 
 # erros
 ERRO_LEX = 0
@@ -26,6 +26,7 @@ I_LINHA = 0
 ESTADOS = []
 AFD = []
 FITA = []
+i = 0
 CONT_LINHA = 1
 TABELA_SLR = []
 PRODS = []
@@ -37,7 +38,7 @@ CONT_GRAMM = 0
 
 
 # Lê o estado entre os símbolos "<" e ">"
-def le_estado(linha):
+def split_nt(linha):
     global I_LINHA
     nt = ""
 
@@ -52,34 +53,34 @@ def le_estado(linha):
 def le_token(linha):
     global AFND, ALFABETO, CONT_ESTADO
     flag = 0
-    for tr in AFND[0].transicoes:
-        if tr.rotulo == linha[0]:
-            tr.transicoes.append(CONT_ESTADO)
+    for i in AFND[0].transicoes:
+        if i.rotulo == linha[0]:
+            i.transicoes.append(CONT_ESTADO)
             flag = 1
 
     if flag == 0:
-        transicao = Transicoes()
-        transicao.rotulo = linha[0]
-        transicao.transicoes.append(CONT_ESTADO)
-        AFND[0].transicoes.append(transicao)
+        transic = Transicao()
+        transic.rotulo = linha[0]
+        transic.transicoes.append(CONT_ESTADO)
+        AFND[0].transicoes.append(transic)
 
     if linha[0] not in ALFABETO and linha[0] != 'ε':
         ALFABETO.append(linha[0])
 
-    tr = 1
+    i = 1
 
-    while linha[tr] != '\n':
+    while linha[i] != '\n':
         estad = Estado()
         estad.rotulo = CONT_ESTADO
         CONT_ESTADO += 1
-        trans = Transicoes()
-        trans.rotulo = linha[tr]
+        trans = Transicao()
+        trans.rotulo = linha[i]
         trans.transicoes.append(CONT_ESTADO)
         estad.transicoes.append(trans)
         AFND.append(estad)
-        if linha[tr] not in ALFABETO and linha[0] != 'ε':
-            ALFABETO.append(linha[tr])
-        tr += 1
+        if linha[i] not in ALFABETO and linha[0] != 'ε':
+            ALFABETO.append(linha[i])
+        i += 1
 
     estad = Estado()
     estad.rotulo = CONT_ESTADO
@@ -98,24 +99,24 @@ def nao_terminal(estad, term, nao_term):
     have_nao_term = False
     cont = 0
     rot = 0
-    for es in ESTADOS:
-        if es.rotuloGr == estad:
+    for i in ESTADOS:
+        if i.rotuloGr == estad:
             break
         cont += 1
 
-    for es in ESTADOS:
-        if es.rotuloGr == nao_term:
+    for i in ESTADOS:
+        if i.rotuloGr == nao_term:
             have_nao_term = True
-            rot = es.rotulo
+            rot = i.rotulo
 
-    for es in ESTADOS[cont].transicoes:
-        if es.rotulo == term:
+    for i in ESTADOS[cont].transicoes:
+        if i.rotulo == term:
             flag = 1
             if have_nao_term:
-                if rot not in es.transicoes:
-                    es.transicoes.append(rot)
+                if rot not in i.transicoes:
+                    i.transicoes.append(rot)
             else:
-                es.transicoes.append(CONT_ESTADO)
+                i.transicoes.append(CONT_ESTADO)
                 est = Estado()
                 est.rotulo = CONT_ESTADO
                 est.rotuloGr = nao_term
@@ -125,7 +126,7 @@ def nao_terminal(estad, term, nao_term):
             break
 
     if flag == 0:
-        transi = Transicoes()
+        transi = Transicao()
         transi.rotulo = term
         if have_nao_term:
             transi.transicoes.append(rot)
@@ -148,18 +149,18 @@ def terminal(estad, term):
 
     cont = 0
     flag = 0
-    for est in ESTADOS:
-        if est.rotuloGr == estad:
+    for i in ESTADOS:
+        if i.rotuloGr == estad:
             break
         cont += 1
 
-    for est in ESTADOS[cont].transicoes:
-        if est.rotulo == term:
+    for i in ESTADOS[cont].transicoes:
+        if i.rotulo == term:
             flag = 1
-            est.transicoes.append(CONT_ESTADO)
+            i.transicoes.append(CONT_ESTADO)
 
     if flag == 0:
-        transi = Transicoes()
+        transi = Transicao()
         transi.rotulo = term
         transi.transicoes.append(CONT_ESTADO)
         ESTADOS[cont].transicoes.append(transi)
@@ -185,7 +186,7 @@ def le_gramatica(linha):
     global AFND, CONT_ESTADO, ALFABETO, I_LINHA, ESTADOS, CONT_GRAMM
     I_LINHA = 1
 
-    std = le_estado(linha)
+    std = split_nt(linha)
     if std == 'S':
         inicializa_estado()
         CONT_GRAMM += 1
@@ -204,10 +205,7 @@ def le_gramatica(linha):
         AFND.append(est)
 
     while linha[I_LINHA] != '\n':
-        while linha[I_LINHA] == '>' or \
-                linha[I_LINHA] == ' ' or \
-                linha[I_LINHA] == ':' or \
-                linha[I_LINHA] == '=' or \
+        while linha[I_LINHA] == '>' or linha[I_LINHA] == ' ' or linha[I_LINHA] == ':' or linha[I_LINHA] == '=' or \
                 linha[I_LINHA] == '|':
             I_LINHA += 1
         if linha[I_LINHA] == '\n':
@@ -219,7 +217,7 @@ def le_gramatica(linha):
 
         if linha[I_LINHA] == '<':
             I_LINHA += 1
-            nao_term = le_estado(linha)
+            nao_term = split_nt(linha)
             I_LINHA += 1
             nao_terminal(std, term, nao_term)
 
@@ -239,14 +237,16 @@ def le_gramatica(linha):
 def print_ident_afnd():
     header = ['δ'] + ALFABETO
     t = PrettyTable(header)
-    for afnd in AFND:
-        if afnd.final:
-            linha = ['*' + str(afnd.rotulo)]
+    for i in AFND:
+        linha = []
+        linha = [i.rotulo]
+        if i.final:
+            linha = ['*' + str(i.rotulo)]
         else:
-            linha = [afnd.rotulo]
+            linha = [i.rotulo]
         for k in ALFABETO:
             flag = 0
-            for j in afnd.transicoes:
+            for j in i.transicoes:
                 if j.rotulo == k:
                     linha = linha + [j.transicoes]
                     flag = 1
@@ -257,17 +257,17 @@ def print_ident_afnd():
 
 
 # Imprime na tela automato deterministico
-def print_indent_afd(com_erro=False):
+def print_ident_afd(comErro=False):
     header = ['δ'] + ALFABETO
-    if com_erro:
+    if comErro:
         header = header + ['x']
     t = PrettyTable(header)
-    for item in AFD:
-        if item.final:
-            linha = ['*' + str(item.rotulo)]
+    for i in AFD:
+        if i.final:
+            linha = ['*' + str(i.rotulo)]
         else:
-            linha = [item.rotulo]
-        for j in item.transicoes:
+            linha = [i.rotulo]
+        for j in i.transicoes:
             if j.trans != -1:
                 linha = linha + [j.trans]
             else:
@@ -282,31 +282,34 @@ def print_indent_afd(com_erro=False):
 # Por ser construído a partir de seu estado inicial a função elimina os estados inalcançaveis
 def determinizar():
     global AFND, AFD, CONT_ESTADO
-    contador = 0
+    CONTADOR = 0
     fila = []
     fila_aux = []
-    lista = [AFND[0].rotulo]
+    lista = []
+    lista.append(AFND[0].rotulo)
     fila.append(lista)
     fila_aux.append(lista)
     while fila:
         est = Estado()
-        est.rotulo = contador
-        contador += 1
+        est.rotulo = CONTADOR
+        CONTADOR += 1
         for j in ALFABETO:
             cont = 0
-            trans = Transicoes()
+            trans = Transicao()
             trans.rotulo = j
-            for f in fila[0]:
-                est.final = AFND[f].final
-                AFND[f].inicial = AFND[f].inicial
-                est.eh_token = AFND[f].eh_token
-
-                if not AFND[f].eh_token:
-                    if AFND[f].tipo == 0:
+            for i in fila[0]:
+                if AFND[i].final:
+                    est.final = True
+                if AFND[i].inicial:
+                    est.inicial = True
+                if AFND[i].eh_token:
+                    est.eh_token = True
+                if not AFND[i].eh_token:
+                    if AFND[i].tipo == 0:
                         est.tipo = 0
                     else:
                         est.tipo = 1
-                for k in AFND[f].transicoes:
+                for k in AFND[i].transicoes:
                     if k.rotulo == j:
                         for l in k.transicoes:
                             if l not in trans.transicoes:
@@ -331,46 +334,47 @@ def alcancaveis():
     global AFD
     change = True
 
-    for it in AFD:
-        if it.rotulo not in it.alcancaveis:
-            it.alcancaveis.append(it.rotulo)
-        for j in it.transicoes:
-            if j.trans not in it.alcancaveis:
+    for i in AFD:
+        if i.rotulo not in i.alcancaveis:
+            i.alcancaveis.append(i.rotulo)
+        for j in i.transicoes:
+            if j.trans not in i.alcancaveis:
                 if j.trans != -1:
-                    it.alcancaveis.append(j.trans)
+                    i.alcancaveis.append(j.trans)
     while change:
         change = False
-        for it in AFD:
-            for j in it.alcancaveis:
+        for i in AFD:
+            for j in i.alcancaveis:
                 for k in AFD[j].alcancaveis:
-                    if k not in it.alcancaveis:
-                        it.alcancaveis.append(k)
-                        it.alcancaveis.sort()
+                    if k not in i.alcancaveis:
+                        i.alcancaveis.append(k)
+                        i.alcancaveis.sort()
                         change = True
 
 
 # Exclui do AFD o estado que não chega a algum estado final
 # verifica em cada estado o vetor de alcancaveis, se nenhum deles for final o estado é eliminado
-def exclui_mortos():
+def mortos():
     global AFD
     mortos = []
     alcancaveis()
 
-    for m in AFD:
+    for i in AFD:
         have_final = False
-        for j in m.alcancaveis:
+        for j in i.alcancaveis:
             if AFD[j].final:
                 have_final = True
         if not have_final:
-            mortos.append(m.rotulo)
+            mortos.append(i.rotulo)
             for k in AFD:
+                cont = 0
                 for j in k.transicoes:
-                    if j.trans == m.rotulo:
+                    if j.trans == i.rotulo:
                         j.trans = -1
-    for m in mortos:
+    for i in mortos:
         cont = 0
         for j in AFD:
-            if m == j.rotulo:
+            if i == j.rotulo:
                 AFD.pop(cont)
             cont += 1
 
@@ -385,18 +389,18 @@ def insere_estado_erro():
     est.final = True
     AFD.append(est)
     for _ in ALFABETO:
-        trans = Transicoes()
+        trans = Transicao()
         trans.trans = est.rotulo
         est.transicoes.append(trans)
 
-    for a in AFD:
-        for j in a.transicoes:
+    for i in AFD:
+        for j in i.transicoes:
             if j.trans == -1:
                 j.trans = est.rotulo
-    for a in AFD:
-        trans = Transicoes()
+    for i in AFD:
+        trans = Transicao()
         trans.trans = est.rotulo
-        a.transicoes.append(trans)
+        i.transicoes.append(trans)
 
 
 # gera arquivo csv do AFD
@@ -405,16 +409,16 @@ def gerar_csv():
 
     alf = ["Estado"]
 
-    for k in ALFABETO:
-        alf.append(k)
+    for i in ALFABETO:
+        alf.append(i)
 
     f = open('AFD.csv', 'w')
     writer = csv.writer(f)
 
     writer.writerow(alf)
-    for k in AFD:
-        linha = [k.rotulo]
-        for j in k.transicoes:
+    for i in AFD:
+        linha = [i.rotulo]
+        for j in i.transicoes:
             linha.append(j.trans)
         writer.writerow(linha)
 
@@ -426,26 +430,26 @@ def split_token2(linha):
     token = ""
     while linha[i] == ' ' or linha[i] == '\t':
         i += 1
-    if ((linha[i] == '<' and linha[i + 1] == '=') or (linha[i] == '>' and linha[i + 1] == '=') or
-            (linha[i] == '!' and linha[i + 1] == '=') or (linha[i] == '=' and linha[i + 1] == '=') or
-            (linha[i] == '&' and linha[i + 1] == '&') or (linha[i] == '|' and linha[i + 1] == '|')):
+    if ((linha[i] == '<' and linha[i + 1] == '=') or (linha[i] == '>' and linha[i + 1] == '=') or (
+            linha[i] == '!' and linha[i + 1] == '=') or (linha[i] == '=' and linha[i + 1] == '=') or (
+            linha[i] == '&' and linha[i + 1] == '&') or (linha[i] == '|' and linha[i + 1] == '|')):
         token = linha[i] + linha[i + 1] + '\n'
         i += 2
         while linha[i] == ' ':
             i += 1
         return token
 
-    if (linha[i] == '+' or linha[i] == '-' or linha[i] == '/' or linha[i] == '*' or linha[i] == '%' or
-            linha[i] == '(' or linha[i] == ')' or linha[i] == '{' or linha[i] == '}' or linha[i] == '>' or
-            linha[i] == '<' or linha[i] == ';' or linha[i] == '='):
+    if (linha[i] == '+' or linha[i] == '-' or linha[i] == '/' or linha[i] == '*' or linha[i] == '%' or linha[
+        i] == '(' or linha[i] == ')' or linha[i] == '{' or linha[i] == '}' or linha[i] == '>' or linha[i] == '<' or
+            linha[i] == ';' or linha[i] == '='):
         token = linha[i] + '\n'
         i += 1
         while linha[i] == ' ':
             i += 1
         return token
     else:
-        while (linha[i] not in
-               [' ', '\n', '+', '-', '*', '/', ';', '%', '>', '<', '=', '!', '(', ')', '{', '}', '&', '|']):
+        while (linha[i] not in [' ', '\n', '+', '-', '*', '/', ';', '%', '>', '<', '=', '!', '(', ')', '{', '}', '&',
+                                '|']):
             token = token + linha[i]
             i += 1
         while linha[i] == ' ':
@@ -487,15 +491,16 @@ def insere_var(cod, toke, eh_token, tipo):
 # caso contrario False
 def rec_token(token):
     global AFD, FITA
-    t = 0
+    i = 0
     rot = 0
     aux = 0
-    while token[t] != '\n':
+    flag = 0
+    while token[i] != '\n':
         flag = 0
         for j in AFD[rot].transicoes:
-            if j.rotulo == token[t]:
+            if j.rotulo == token[i]:
                 flag = 1
-                if token[t + 1] == '\n' and AFD[j.trans].final and AFD[j.trans].rotuloGr != 'X':
+                if token[i + 1] == '\n' and AFD[j.trans].final and AFD[j.trans].rotuloGr != 'X':
                     FITA.append(j.trans)
                     insere_var(j.trans, token, AFD[j.trans].eh_token, AFD[j.trans].tipo)
                     return True
@@ -505,7 +510,7 @@ def rec_token(token):
         if flag == 0:
             return False
         rot = aux
-        t += 1
+        i += 1
     return False
 
 
@@ -570,25 +575,25 @@ def print_tabela_simbolos_sintaticos():
 def print_tabela_simbolos():
     print("------TABELA DE SÍMBOLOS------")
     print()
-    for simbolo in TABELA_SIMBOLOS:
-        if simbolo.eh_token:
+    for i in TABELA_SIMBOLOS:
+        if i.eh_token == True:
             tipo = "TOKEN"
-            print("Cod: {} Tipo: {} Token: {}".format(simbolo.cod, tipo, simbolo.token), end='')
+            print("Cod: {} Tipo: {} Token: {}".format(i.cod, tipo, i.token), end='')
         else:
-            if simbolo.tipo == 0:
+            if i.tipo == 0:
                 tipo = "VARIÁVEL"
-                print("Cod: {} Tipo: {} Token: {}".format(simbolo.cod, tipo, simbolo.token), end='')
-            if simbolo.tipo == 1:
+                print("Cod: {} Tipo: {} Token: {}".format(i.cod, tipo, i.token), end='')
+            if i.tipo == 1:
                 tipo = "NUMERAL"
-                print("Cod: {} Tipo: {} Token: {}".format(simbolo.cod, tipo, simbolo.token), end='')
+                print("Cod: {} Tipo: {} Token: {}".format(i.cod, tipo, i.token), end='')
     print()
 
 
 # imprime tabela LSR
-def print_slr(tabela_slr):
-    for linha in tabela_slr:
-        print(linha.rotulo, end=" === ")
-        for j in linha.transicoes:
+def print_tabela_slr(tabela_slr):
+    for i in tabela_slr:
+        print(i.rotulo, end=" === ")
+        for j in i.transicoes:
             print(j, end="")
         print()
 
@@ -649,11 +654,11 @@ def analise_sintatica():
     indice = 0
     reconhece = True
     aceita = False
-    linha = 0
-    erros = ""
+    LINHA = 0
+    ERRO = ""
     while reconhece and not aceita:
         if indice != len(TABELA_SIMBOLOS):
-            linha = TABELA_SIMBOLOS[indice].linha
+            LINHA = TABELA_SIMBOLOS[indice].linha
             pos_fita = TABELA_SIMBOLOS[indice].token
             pos_fita = pos_fita[:-1]
             token = TABELA_SIMBOLOS[indice].eh_token
@@ -663,6 +668,7 @@ def analise_sintatica():
 
         pos_pilha = int(pilha[len(pilha) - 1])
         op = " "
+        pos_fita2 = " "
 
         if not token:
             pos_fita2 = "var"
@@ -675,7 +681,7 @@ def analise_sintatica():
 
         tipo = op[:1]
         if tipo == 'X':
-            erros = pos_fita
+            ERRO = pos_fita
             reconhece = False
 
         elif tipo == 'T':
@@ -705,9 +711,9 @@ def analise_sintatica():
             aceita = True
 
     if not aceita:
-        er = erros()
-        er.linha = linha
-        er.token = erros
+        er = Erro()
+        er.linha = LINHA
+        er.token = ERRO
         er.cod_erro = ERRO_SINTATICO
         TABELA_ERROS.append(er)
         print_erros(False, ERRO_SINTATICO)
@@ -727,12 +733,12 @@ def gera_nodos(lin, grafo):
     rot2 = 0
     lin[4] = lin[4][:-1]
 
-    for g in grafo:
-        if g.var == lin[2]:
-            rot1 = g.pos
+    for i in grafo:
+        if i.var == lin[2]:
+            rot1 = i.pos
             at1 = False
-        if g.var == lin[4]:
-            rot2 = g.pos
+        if i.var == lin[4]:
+            rot2 = i.pos
             at2 = False
 
     if at1:
@@ -770,21 +776,21 @@ def gera_nodos(lin, grafo):
 # funcao que recebe como parametro um grafo e uma lista de nodos
 # percorre o grafo em profundidade mais a esquerda
 # fundamental para o processo de otimizaçao
-def dfs(grafo, ordem_inst):
-    pilha = [ordem_inst[len(ordem_inst) - 1]]
+def dfs(grafo, ordemInst):
+    pilha = [ordemInst[len(ordemInst) - 1]]
     ar = False
     on = False
     while pilha:
         for aresta in pilha[len(pilha) - 1].filhos:
-            if grafo[aresta] not in ordem_inst and grafo[aresta].filhos:
+            if grafo[aresta] not in ordemInst and grafo[aresta].filhos:
                 for pai in grafo[aresta].pai:
-                    if grafo[pai] in ordem_inst:
+                    if grafo[pai] in ordemInst:
                         on = True
                     else:
                         on = False
                         break
                 if on:
-                    ordem_inst.append(grafo[aresta])
+                    ordemInst.append(grafo[aresta])
                     pilha.append(grafo[aresta])
                     ar = True
                     break
@@ -795,14 +801,14 @@ def dfs(grafo, ordem_inst):
 
 
 # funçao recebe como parametro um grafo e uma pilha
-# escreve o codigo otimizado no arquivo codigo_otimizado.txt
-def codigo_otimizado(instrucoes, grafo):
-    arquivo = open('codigo_otimizado.txt', 'a')
-    k = len(instrucoes) - 1
+# escreve o codigo otimizado no arquivo codOtimizado.txt
+def codigo_otimizado(ordemInst, grafo):
+    arquivo = open('codOtimizado.txt', 'a')
+    k = len(ordemInst) - 1
     while k >= 0:
-        instrucao = instrucoes[k]
+        i = ordemInst[k]
         arquivo.write(
-            str(instrucao.var) + " = " + grafo[instrucao.filhos[0]].var + " " + instrucao.op + " " + grafo[instrucao.filhos[1]].var + " " + "\n")
+            str(i.var) + " = " + grafo[i.filhos[0]].var + " " + i.op + " " + grafo[i.filhos[1]].var + " " + "\n")
         k -= 1
     arquivo.close()
 
@@ -810,31 +816,31 @@ def codigo_otimizado(instrucoes, grafo):
 # funcao que realiza a otimizaçao do codigo intermediario
 def otimizacao():
     grafo = []
-    instrucoes = []
+    ordemInst = []
 
-    with open("codigo_intermediario.txt", "r") as arquivo:
+    with open("codIntermediario.txt", "r") as arquivo:
         for linha in arquivo:
             linha.strip('\n')
             lin = linha.split(" ")
             if len(lin) == 5:
                 gera_nodos(lin, grafo)
             else:
-                arquivo = open('codigo_otimizado.txt', 'a')
+                arquivo = open('codOtimizado.txt', 'a')
                 arquivo.write(str(linha))
                 arquivo.close()
 
     for nodo in grafo:
-        if len(nodo.pai) == 0 and nodo not in instrucoes:
-            instrucoes.append(nodo)
-            dfs(grafo, instrucoes)
-    codigo_otimizado(instrucoes, grafo)
+        if len(nodo.pai) == 0 and nodo not in ordemInst:
+            ordemInst.append(nodo)
+            dfs(grafo, ordemInst)
+    codigo_otimizado(ordemInst, grafo)
 
 
-# funcao que escrece o codigo intermediario gerado na analise sintatica no arquivo codigo_intermediario.txt
-def codigo_intermediario():
-    arquivo = open('codigo_intermediario.txt', 'w')
-    for cod in CODI:
-        arquivo.write(cod + '\n')
+# funcao que escrece o codigo intermediario gerado na analise sintatica no arquivo codIntermediario.txt
+def gera_codigo_intermediario():
+    arquivo = open('codIntermediario.txt', 'w')
+    for i in CODI:
+        arquivo.write(i + '\n')
     arquivo.close()
 
 
@@ -844,20 +850,20 @@ def analise_semantica():
     val1 = ""
     val2 = ""
     eh_var = False
-    for simbolo in TABELA_SIMBOLOS_SINTATICA:
-        if simbolo.tipo == "atrib":
+    for i in TABELA_SIMBOLOS_SINTATICA:
+        if i.tipo == "atrib":
             for j in TABELA_SIMBOLOS_SINTATICA:
                 if j.tipo == "var":
-                    if simbolo.rotulo == j.rotulo:
+                    if i.rotulo == j.rotulo:
                         val1 = j.val
             for k in TABELA_SIMBOLOS_SINTATICA:
                 if k.tipo == "var":
-                    if simbolo.val == k.rotulo:
+                    if i.val == k.rotulo:
                         eh_var = True
                         val2 = k.val
             if val1 != val2 and eh_var:
                 print(
-                    "erro semantico na expressão: " + simbolo.rotulo + "(" + val1 + ")" + " = " + "" + simbolo.val + "(" + val2 + ")")
+                    "erro semantico na expressão: " + i.rotulo + "(" + val1 + ")" + " = " + "" + i.val + "(" + val2 + ")")
                 print()
             eh_var = False
 
@@ -865,7 +871,7 @@ def analise_semantica():
 def main():
     global CONT_ESTADO, AFND, ESTADOS, CONT_LINHA
     # abre o arquivo em modo de leitura
-    arquivo = open('codigo_otimizado.txt', 'w')
+    arquivo = open('codOtimizado.txt', 'w')
     arquivo.write(str(""))
     arquivo.close()
 
@@ -885,7 +891,7 @@ def main():
             else:
                 le_token(linha)
         determinizar()
-        exclui_mortos()
+        mortos()
         insere_estado_erro()
         gerar_csv()
         print_erros(lexic(), ERRO_LEX)
@@ -894,7 +900,7 @@ def main():
             aceita = analise_sintatica()
             if aceita:
                 analise_semantica()
-                codigo_intermediario()
+                gera_codigo_intermediario()
                 otimizacao()
 
 
